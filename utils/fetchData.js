@@ -1,8 +1,7 @@
-const getAllBeers = async(page = 1)=>{
-    const baseUrl = "https://api.punkapi.com/v2";
-    const res = await fetch(`${baseUrl}/beers?page=${page}&per_page=10`);
-    return await res.json();
-  }
+export const getAllBeers = async (page) => {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const res = await fetch(`${baseUrl}/beers?page=${page}&per_page=2`);
+  return res.json();
+};
 
-  export default getAllBeers
 

@@ -12,13 +12,7 @@ import TabSection from "@/components/Molecules/TabSection";
 import { TAB } from "../../utils/constant";
 import Loading from "@/components/Atoms/loading";
 import toast from 'react-hot-toast';
-
-
-const getAllBeers = async (page) => {
-  const baseUrl = "https://api.punkapi.com/v2";
-  const res = await fetch(`${baseUrl}/beers?page=${page}&per_page=10`);
-  return res.json();
-};
+import {getAllBeers} from "../../utils/fetchData";
 
 
 export default function Home() {
