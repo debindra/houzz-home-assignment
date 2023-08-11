@@ -8,16 +8,18 @@ import Link from "next/link";
 import MyBeerCard from "@/components/MyBeerCard";
 import LoadMore from "@/components/Atoms/LoadMore";
 import AddNewBeer from "@/components/Molecules/AddNewBeer";
+import TabSection from "@/components/Molecules/TabSection";
+import { TAB } from "../../utils/constant";
+import Loading from "@/components/loading";
+import toast from 'react-hot-toast';
+
 
 const getAllBeers = async (page) => {
   const baseUrl = "https://api.punkapi.com/v2";
-  const res = await fetch(`${baseUrl}/beers?page=${page}&per_page=2`);
+  const res = await fetch(`${baseUrl}/beers?page=${page}&per_page=10`);
   return res.json();
 };
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
 export default function Home() {
   const [tab, setTab] = useState(1);
@@ -28,9 +30,17 @@ export default function Home() {
     description: "",
     tagline: "",
     image_url: "/default-beer-image.png",
+    id: new Date().valueOf()
   });
+  const [tabs, setTabs] = useState([
+    { name: "All Beers", key:1, current: true},
+    { name: "My Beers", key:2,  current: false},
+ 
+   ]);
+
   const [page, setPage] = useState(1);
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const openModal = () => {
     setModalOpen(true);
@@ -51,88 +61,79 @@ export default function Home() {
   const handleFormSubmit = (event) => {
     event.preventDefault();
     setMyBeers([...mybeers, mybeer]);
-
-    closeModal() //Close the modal
+    closeModal(); //Close the modal
+    toast.success("You have successfully added a new beer.")
   };
 
-
   useEffect(() => {
-    console.log(page);
+    setLoading(true)
     const loadMore = async () => {
       const newRows = await getAllBeers(page);
       setData([...data, ...newRows]);
+      setLoading(false)
     };
     loadMore();
   }, [page]);
 
   const updatePageNumber = (pageNumber) => {
-      setPage(pageNumber);
+    setPage(pageNumber);
+  };
+  
+  const handleTabClick = (key) => {
+      const updatedTabs = tabs.map((item) => {
+        if(item.key === key) {
+          item.current = true;
+        }else{
+          item.current= false
+        } 
+        return item
+      })
+      setTabs(updatedTabs);
+      setTab(key)
   }
+
+  
 
   return (
     <>
-      <div className="container  mx-auto px-28  sm:grid-cols-1   mt-10">
-        <div className="grid grid-cols-8 gap-4">
-          <div class="col-span-1">
-            <a
-              href="#"
-              onClick={() => setTab(1)}
-              aria-current="page"
-              className={classNames(
-                tab === 1 ? "underline text-black " : " text-gray-500",
-                "text-md px-4 py-2  font-medium  bg-white"
-              )}
-            >
-              All Beers
-            </a>
-          </div>
-          <div class="col-span-2">
-            <a
-              href="#"
-              onClick={() => setTab(2)}
-              className={classNames(
-                tab === 2 ? " underline  text-black" : " text-gray-500",
-                "px-4 py-2 text-md font-medium  bg-white"
-              )}
-            >
-              My Beers
-            </a>
-          </div>
-          {tab === 2 && (
-            <AddNewBeer onClickddNewbeerBtn={openModal} />
-          )}
+
+      <div className="container flex-col mx-auto   sm:grid-cols-1   mt-5">
+        <div className="grid grid-cols-8 gap-1">
+          {
+          tabs.map((tab) => (
+            <TabSection key={tab.id} item={tab} onTabSectionClick={handleTabClick} />
+          ))
+        }
+        {tab === TAB.TWO && <AddNewBeer onClickddNewbeerBtn={openModal} />}
         </div>
       </div>
 
-      {tab === 1 ? (
+
+
+      {tab === TAB.ONE ? ( //Load All beers tab section and data 
         <>
-          <div className="container grid gap-4  mx-auto px-28  sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1  xl:grid-cols-2   mt-10">
+        <div className="flex flex-center justify-center container mx-auto">
+          <div className="grid gap-4 mx-auto sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  xl:grid-cols-2   mt-5">
             {data && data?.map((item) => <Card item={item} key={item.id} />)}
           </div>
+          </div>
 
-          <LoadMore  onClickLoadMore={updatePageNumber} currentPage={page} />
-
-      
+          {loading? 
+          (<Loading/>):
+          (<LoadMore onClickLoadMore={updatePageNumber} currentPage={page} />)
+        }
+          
         </>
-      ) : (
+      ) : ( //Load My beer tab section and data
         <>
-          {/* <div className="container grid gap-4   mx-auto px-28  sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  xl:grid-cols-2   mt-10"> */}
-
           {mybeers.length > 0 ? (
-            mybeers?.map((item) => (
-              // <Card item={item} />
-              <MyBeerCard key={item.name} item={item} />
-            ))
+            mybeers?.map((item) => <Card key={item.id} item={item} />)
           ) : (
-
             <EmptyCard openModle={openModal} />
           )}
-
-          {/* </div> */}
         </>
       )}
 
-    
       <Modal isOpen={modalOpen} onClose={closeModal}>
         <div className="px-6 py-6 lg:px-8">
           <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">
@@ -146,14 +147,14 @@ export default function Home() {
                 width={90}
                 height={70}
               />
-
+              <input type="hidden" name="id" value={new Date().valueOf()} />
               <input
                 onChange={handleInputChange}
                 placeholder="Beer name*"
                 type="text"
                 name="name"
                 id="beer"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                 required
               />
             </div>
@@ -164,7 +165,7 @@ export default function Home() {
                 type="text"
                 name="tagline"
                 id="beer"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                 required
               />
             </div>

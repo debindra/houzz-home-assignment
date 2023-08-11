@@ -5,7 +5,7 @@ import React from 'react'
 function MyBeerCard({item}) {
    
   return (
-<div className="container grid gap-4   mx-auto px-28  sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  xl:grid-cols-2   mt-10"> 
+<div className="container grid gap-4   mx-auto sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  xl:grid-cols-2   mt-10"> 
         <a
     href="#"
     key={item?.name}

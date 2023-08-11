@@ -1,31 +1,27 @@
-import React, { useState } from 'react'
-
 function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
   }
 
   
-function Tab({tabName, tab, onTabClick}) {
-    const [selected, setSelected] = useState(1)
+function Tab({tab, onTabClick}) {
 
-    const setTablValue = ()=> {
-        // setSelected(tab)
-        onTabClick(tab)
-    }
-
-    console.log(`slected ${selected} ${tab}`)
+  const handleTabClick = (e, key) =>{
+    onTabClick(key)
+  }
 
   return (
     <>
-     <a href="#"
-              onClick={() => setTablValue(1)}
+     <a
+              href="#"
+              key={tab.key}
+              onClick={(e) => handleTabClick(e, tab.key)}
               aria-current="page"
               className={classNames(
-                tab === selected ? "underline text-black " : " text-gray-500",
-                "text-md px-4 py-2  font-medium  bg-white"
+                tab.current ? "underline text-black " : " text-gray-500",
+                "text-md py-2  font-medium  bg-white "
               )}
             >
-             {tabName}
+              {tab.name}
             </a>
     </>
   )
