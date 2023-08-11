@@ -1,16 +1,16 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import Card from "@/components/Card";
-import EmptyCard from "@/components/EmptyCard";
-import Modal from "@/components/Modal";
+import Card from "@/components/Organisms/Card";
+import EmptyCard from "@/components/Organisms/EmptyCard";
+import Modal from "@/components/Organisms/Modal";
 import Link from "next/link";
-import MyBeerCard from "@/components/MyBeerCard";
+import MyBeerCard from "@/components/Organisms/MyBeerCard";
 import LoadMore from "@/components/Atoms/LoadMore";
 import AddNewBeer from "@/components/Molecules/AddNewBeer";
 import TabSection from "@/components/Molecules/TabSection";
 import { TAB } from "../../utils/constant";
-import Loading from "@/components/loading";
+import Loading from "@/components/Atoms/loading";
 import toast from 'react-hot-toast';
 
 
@@ -127,7 +127,7 @@ export default function Home() {
       ) : ( //Load My beer tab section and data
         <>
           {mybeers.length > 0 ? (
-            mybeers?.map((item) => <Card key={item.id} item={item} />)
+            mybeers?.map((item) => <MyBeerCard key={item.id} item={item} />)
           ) : (
             <EmptyCard openModle={openModal} />
           )}
